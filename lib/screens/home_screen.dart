@@ -1,8 +1,11 @@
-import 'package:bloom/screens/admin/admin.dart';
+import 'package:bloom/screens/careers/careers_page.dart';
+import 'package:bloom/screens/events/event_screen.dart';
 import 'package:bloom/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:iconly/iconly.dart';
+
+import 'profile/profile.dart';
 
 class HomeScreen extends StatefulWidget {
   int val;
@@ -27,10 +30,11 @@ class _HomeScreenState extends State<HomeScreen> {
     // // const IntroScreen(),
     // const EventScreen(),
 
-    AdminDashboard(),
-    AdminDashboard(),
-    AdminDashboard(),
-    // CareersListingPage(),
+    const ProfileScreen(),
+    // const IntroScreen(),
+    const EventScreen(),
+
+    CareersListingPage(),
   ];
 
   @override
@@ -138,19 +142,19 @@ class _HomeScreenState extends State<HomeScreen> {
               // iconColor: _currentIndex == 1 ? orange : primaryWhite,
               borderRadius: BorderRadius.circular(10),
             ),
+            // GButton(
+            //   icon: _currentIndex == 2
+            //       ? IconlyBold.calendar
+            //       : IconlyBroken.calendar,
+            //   text: '  My Events',
+            //   iconSize: _currentIndex == 2 ? 25 : 25,
+            //   // iconColor: _currentIndex == 2 ? orange : primaryWhite,
+            //   borderRadius: BorderRadius.circular(10),
+            // ),
             GButton(
-              icon: _currentIndex == 2
-                  ? IconlyBold.calendar
-                  : IconlyBroken.calendar,
-              text: '  My Events',
-              iconSize: _currentIndex == 2 ? 25 : 25,
-              // iconColor: _currentIndex == 2 ? orange : primaryWhite,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            GButton(
-              icon: _currentIndex == 3 ? IconlyBold.work : IconlyBroken.work,
+              icon: _currentIndex == 2 ? IconlyBold.work : IconlyBroken.work,
               text: '  Careers',
-              iconSize: _currentIndex == 3 ? 25 : 25,
+              iconSize: _currentIndex == 2 ? 25 : 25,
               // iconColor: _currentIndex == 2 ? orange : primaryWhite,
               borderRadius: BorderRadius.circular(10),
             ),

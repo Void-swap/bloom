@@ -1,5 +1,11 @@
 import 'package:bloom/register_login.dart';
+import 'package:bloom/screens/careers/create_career.dart';
+import 'package:bloom/screens/events/create_event.dart';
+import 'package:bloom/screens/events/my_events_volunteer_screen.dart';
+import 'package:bloom/screens/events/verify_event.dart';
 import 'package:bloom/screens/home_screen.dart';
+import 'package:bloom/screens/profile/verify_screen.dart';
+import 'package:bloom/screens/venue/create_venue.dart';
 import 'package:bloom/splash.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -112,12 +118,12 @@ class MyApp extends StatelessWidget {
               val: 1,
             ),
         '/registerLogin': (context) => const RegisterLogin(),
-        // '/verifyMe': (context) => const GetVerifiedScreen(),
-        // '/createEvent': (context) => CreateEventScreen(),
-        // '/verifyEvent': (context) => const VerifyEventScreen(),
-        // '/createVenue': (context) => CreateVenueScreen(),
-        // '/createCareer': (context) => CreateCareerScreen(),
-        // '/myEvents': (context) => MyEventScreen(),
+        '/verifyMe': (context) => const GetVerifiedScreen(),
+        '/createEvent': (context) => CreateEventScreen(),
+        '/verifyEvent': (context) => const VerifyEventScreen(),
+        '/createVenue': (context) => CreateVenueScreen(),
+        '/createCareer': (context) => CreateCareerScreen(),
+        '/myEvents': (context) => MyEventScreen(),
         // '/shortlistScreen': (context) => ApplicantManagementScreen(
         //       jobId: "70FEBrztoFTqdnqe7K30",
         //     ),
