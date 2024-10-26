@@ -42,12 +42,13 @@ class _CustomSplashState extends State<CustomSplash> {
             Column(
               children: [
                 SvgPicture.asset(
-                  "assets/images/connect.svg",
+                  widget.image,
                   height: 200,
                 ),
                 SizedBox(height: 20),
                 Text(
                   widget.title,
+                  textAlign: TextAlign.center,
                   style: TextStyle(
                       color: primaryBlack,
                       fontFamily: "poppins",
@@ -55,19 +56,17 @@ class _CustomSplashState extends State<CustomSplash> {
                       fontWeight: FontWeight.w600,
                       decoration: TextDecoration.none),
                 ),
-                //single Subtitle
                 if (widget.subTitle != null && widget.subTitle2 == null)
                   Text(
                     widget.subTitle!,
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                         color: primaryBlack,
                         fontFamily: "poppins",
-                        fontSize: 20,
-                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
                         decoration: TextDecoration.none),
                   ),
-
-                //Subtitle with Yellow wording
                 if (widget.subTitle2 != null && widget.subTitle != null)
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,

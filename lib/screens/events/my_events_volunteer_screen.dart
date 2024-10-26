@@ -15,7 +15,7 @@ class MyEventScreen extends StatefulWidget {
 }
 
 class _MyEventScreenState extends State<MyEventScreen> {
-  final _box = GetStorage(); // Initialize GetStorage
+  final _box = GetStorage();
   UserModel? userData;
   List<Map<String, dynamic>> volunteerEvents = [];
 
@@ -25,7 +25,6 @@ class _MyEventScreenState extends State<MyEventScreen> {
     _fetchUserData();
   }
 
-  // Fetch user data from local storage
   void _fetchUserData() {
     final userDataMap = _box.read('userData') as Map<String, dynamic>?;
     if (userDataMap != null) {
@@ -36,14 +35,12 @@ class _MyEventScreenState extends State<MyEventScreen> {
     }
   }
 
-  // Fetch all events and filter by user in attendees
   Future<void> _fetchVolunteerEvents() async {
     try {
       final eventsSnapshot =
           await FirebaseFirestore.instance.collection('Events').get();
 
       if (userData!.role == "Learner") {
-        // Iterate through each event and check if the user is in the attendees list
         for (var event in eventsSnapshot.docs) {
           final attendees = List.from(event['attendees'] ?? []);
 
@@ -52,16 +49,14 @@ class _MyEventScreenState extends State<MyEventScreen> {
             orElse: () => null,
           );
 
-          // If user is a volunteer, add the event and their status to the list
           if (userAttendee != null) {
             volunteerEvents.add({
-              ...event.data(), // Event data
-              'status': userAttendee['status'], // Add user status to the event
+              ...event.data(),
+              'status': userAttendee['status'],
             });
           }
         }
       } else {
-        // Iterate through each event and check if the user is in the attendees list
         for (var event in eventsSnapshot.docs) {
           final attendees = List.from(event['volunteers'] ?? []);
 
@@ -70,16 +65,15 @@ class _MyEventScreenState extends State<MyEventScreen> {
             orElse: () => null,
           );
 
-          // If user is a volunteer, add the event and their status to the list
           if (userAttendee != null) {
             volunteerEvents.add({
-              ...event.data(), // Event data
-              'status': userAttendee['status'], // Add user status to the event
+              ...event.data(),
+              'status': userAttendee['status'],
             });
           }
         }
       }
-      setState(() {}); // Update UI after fetching events
+      setState(() {});
     } catch (e) {
       print('Error fetching volunteer events: $e');
     }
@@ -168,8 +162,6 @@ class _MyEventScreenState extends State<MyEventScreen> {
                                       },
                                     ),
                                   ),
-
-                                // Foreground content
                                 Container(
                                   width: double.maxFinite,
                                   decoration: const BoxDecoration(
@@ -396,8 +388,6 @@ class _MyEventScreenState extends State<MyEventScreen> {
                                       },
                                     ),
                                   ),
-
-                                // Foreground content
                                 Container(
                                   width: double.maxFinite,
                                   decoration: const BoxDecoration(
@@ -488,7 +478,6 @@ class _MyEventScreenState extends State<MyEventScreen> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.end,
                                           children: [
-                                            // Event name
                                             Text(
                                               event['name'] ?? 'No name',
                                               style: Theme.of(context)

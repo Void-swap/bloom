@@ -1,4 +1,5 @@
 import 'package:bloom/model/user.dart';
+import 'package:bloom/screens/admin/admin.dart';
 import 'package:bloom/screens/profile/edit_profie.dart';
 import 'package:bloom/utils/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:iconly/iconly.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'admin_verify_screen.dart';
 
@@ -61,6 +63,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.dispose();
   }
 
+  void _launchURL(String url) async {
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final userDataMap = _box.read('userData') as Map<String, dynamic>?;
@@ -88,14 +98,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 }
               },
             ),
-          if (userData!.role != "Learner" && userData.role != "Mentor")
+          if (userData!.role == "Admin")
             IconButton(
-                icon: const Icon(
-                  IconlyBroken.location,
-                ),
-                onPressed: () {
-                  Navigator.pushNamed(context, '/createVenue');
-                }),
+              icon: const Icon(
+                IconlyBroken.chart,
+              ),
+              onPressed: () {
+                if (userData != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AdminDashboard()),
+                  );
+                }
+              },
+            ),
+          // IconButton(
+          //   icon: const Icon(
+          //     IconlyBroken.swap,
+          //   ),
+          //   onPressed: () {
+          //     _refreshProfile();
+          //   },
+          // ),
           IconButton(
             icon: const Icon(
               IconlyBroken.edit,
@@ -120,8 +144,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: SingleChildScrollView(
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            // height: MediaQuery.of(context).size.height,
-            // width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
             child: userData == null
                 ? const Text('No user data available')
                 : Column(
@@ -238,7 +262,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     fontWeight: FontWeight.w800),
                               ),
                               Row(
-                                // mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
                                     "I'm ${userData.name} ",
@@ -335,15 +358,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             .bodyMedium!
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
-                      // Text(
-                      //   userData.attendedEvents.isNotEmpty
-                      //       ? 'You’ve attended ${userData.attendedEvents.length} skill-building events! 🎉'
-                      //       : 'Join our upcoming skill-building events to learn and grow!',
-                      //   style: Theme.of(context)
-                      //       .textTheme
-                      //       .bodyMedium!
-                      //       .copyWith(fontSize: 12),
-                      // ),
+                      Text(
+                        userData.attendedEvents.isNotEmpty
+                            ? 'You’ve attended ${userData.attendedEvents.length} skill-building events! 🎉'
+                            : 'Join our upcoming skill-building events to learn and grow!',
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyMedium!
+                            .copyWith(fontSize: 12),
+                      ),
                       // Expanded(child: MyEventsHorizontal()),
                       const SizedBox(height: 15),
                       Text(
@@ -363,20 +386,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             .copyWith(fontSize: 12),
                       ),
                       const SizedBox(height: 15),
-                      Text(
-                        "I’m Just a Message Away!",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        "contacts, mail",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(fontSize: 12),
-                      ),
+
                       const SizedBox(height: 15),
                       Text(
                         "Find me on socials",
@@ -385,26 +395,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             .bodyMedium!
                             .copyWith(fontWeight: FontWeight.w600),
                       ),
-                      Text(
-                        "socials",
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyMedium!
-                            .copyWith(fontSize: 12),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      GestureDetector(
+                        onTap: () {
+                          if (userData.socialMediaLinks.isNotEmpty) {
+                            final url = userData.socialMediaLinks[
+                                0]; // Assuming the URL is stored in the badges list
+                            // Launch the URL
+                            _launchURL(url);
+                          }
+                        },
+                        child: Image.asset(
+                          "assets/image.png",
+                          height: 35,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       const SizedBox(height: 15),
-                      Text(
-                        'Lets connect at: ${userData.socialMediaLinks.length}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      Text(
-                        'Email: ${userData.email}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                      Text(
-                        'Role: ${userData.role}',
-                        style: const TextStyle(fontSize: 18),
-                      ),
+                      // Text(
+                      //   'Lets connect at: ${userData.socialMediaLinks.length}',
+                      //   style: const TextStyle(fontSize: 18),
+                      // ),
+                      // Text(
+                      //   'Email: ${userData.email}',
+                      //   style: const TextStyle(fontSize: 18),
+                      // ),
+                      // Text(
+                      //   'Role: ${userData.role}',
+                      //   style: const TextStyle(fontSize: 18),
+                      // ),
                     ],
                   ),
           ),

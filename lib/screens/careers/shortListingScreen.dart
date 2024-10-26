@@ -1,3 +1,4 @@
+import 'package:bloom/screens/profile/othersProfile.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +33,6 @@ class _ApplicantManagementScreenState extends State<ApplicantManagementScreen> {
         final applications = jobData['applications'] as List<dynamic>?;
 
         if (applications != null) {
-          // Filter for pending applicants
           applicants = applications
               .map((app) => app as Map<String, dynamic>)
               .where((app) => app['status'] == 'pending')
@@ -48,30 +48,26 @@ class _ApplicantManagementScreenState extends State<ApplicantManagementScreen> {
   Future<void> updateApplicationStatus(
       String applicantId, String status) async {
     try {
-      // Update the applicant's status in the existing applications array
       final jobDocRef =
           FirebaseFirestore.instance.collection('careers').doc(widget.jobId);
 
-      // Use a transaction to ensure atomicity
       await FirebaseFirestore.instance.runTransaction((transaction) async {
         DocumentSnapshot jobSnapshot = await transaction.get(jobDocRef);
         if (jobSnapshot.exists) {
           List<dynamic> applications = jobSnapshot['applications'];
 
-          // Update the specific applicant's status
           for (var app in applications) {
             if (app['userId'] == applicantId) {
-              app['status'] = status; // Update the status
+              app['status'] = status;
               break;
             }
           }
 
-          // Update the job document with the modified applications list
           transaction.update(jobDocRef, {'applications': applications});
         }
       });
 
-      fetchApplicants(); // Refresh the list
+      fetchApplicants();
     } catch (e) {
       print("Error updating status: $e");
     }
@@ -81,7 +77,7 @@ class _ApplicantManagementScreenState extends State<ApplicantManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Applicants screen"),
+        title: Text("Applicants Screen"),
       ),
       body: applicants.isEmpty
           ? Center(child: CircularProgressIndicator())
@@ -89,27 +85,91 @@ class _ApplicantManagementScreenState extends State<ApplicantManagementScreen> {
               itemCount: applicants.length,
               itemBuilder: (context, index) {
                 final applicant = applicants[index];
-                return ListTile(
-                  title: Text(applicant['name'] ?? 'Unknown'),
-                  subtitle: Text("Status: ${applicant['status'] ?? 'Unknown'}"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.check),
-                        onPressed: () => updateApplicationStatus(
-                            applicant['userId'], 'accepted'),
+                return Card(
+                  margin:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              OthersProfileView(userId: applicant['userId']),
+                        ),
+                      );
+                    },
+                    child: ListTile(
+                      title: Text(applicant['name'] ?? 'Unknown'),
+                      subtitle:
+                          Text("Status: ${applicant['status'] ?? 'Unknown'}"),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(Icons.check),
+                            onPressed: () => updateApplicationStatus(
+                                applicant['userId'], 'accepted'),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.close),
+                            onPressed: () => updateApplicationStatus(
+                                applicant['userId'], 'rejected'),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () => updateApplicationStatus(
-                            applicant['userId'], 'rejected'),
-                      ),
-                    ],
+                    ),
                   ),
                 );
               },
             ),
+    );
+  }
+}
+
+class UserProfileScreen extends StatelessWidget {
+  final String userId;
+
+  UserProfileScreen({required this.userId});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("User Profile"),
+      ),
+      body: FutureBuilder<DocumentSnapshot>(
+        future:
+            FirebaseFirestore.instance.collection('users').doc(userId).get(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.hasError) {
+            return Center(child: Text("Error loading profile"));
+          }
+
+          if (!snapshot.hasData || !snapshot.data!.exists) {
+            return Center(child: Text("User not found"));
+          }
+
+          final userData = snapshot.data!.data() as Map<String, dynamic>;
+
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("Name: ${userData['name'] ?? 'Unknown'}",
+                    style: TextStyle(fontSize: 24)),
+                SizedBox(height: 8),
+                Text("Email: ${userData['email'] ?? 'Unknown'}",
+                    style: TextStyle(fontSize: 18)),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }

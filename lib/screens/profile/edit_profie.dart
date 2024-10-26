@@ -32,136 +32,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final ImagePicker _picker = ImagePicker();
   String? _profilePicUrl;
   final List<String> availableInterests = [
-    "Leadership Skills",
-    "Public Speaking",
-
-    "Customer Service Skills",
-    "Presentation Skills", "Youth Empowerment",
-    "Women Empowerment",
-    "Critical Thinking",
-    "Emotional Intelligence",
-    "Time Management",
-    "Goal Setting", "Decision-Making Skills",
-    "Stress Management",
-    "Resilience Training",
-    "Storytelling",
-    "Debate and Argumentation",
-    "Nonverbal Communication",
-    "Creative Writing",
-    "Cross-Cultural Communication",
-    "Career Planning",
-    "Entrepreneurship",
-    "Financial Literacy",
-    "Digital Marketing",
-    "Project Management",
-    "Networking Skills",
-    "Design Thinking",
-    "Innovation & Ideation",
-    "Art & Creativity",
-    "Music & Performance Arts",
-    "Tech & Gadget Innovation",
-    "Sustainability & Eco-Innovation",
-
-    "Social Entrepreneurship",
-    "Community Service & Volunteering",
-    "Environmental Awareness",
-    "Human Rights & Advocacy",
-    "Diversity & Inclusion",
-    "Physical Fitness & Sports",
-    "Mental Health & Wellness",
-    "Nutrition & Healthy Living",
-    "Yoga & Wellness",
-    "Mind-Body Connection",
-    "Cultural Heritage & History",
-    "Interfaith Dialogue",
-    "Differently Abled-Friendly",
-    "Assistive Technology",
-    "Inclusive Education",
-    "Accessible Communication",
-    "Adaptive Sports",
-    "Skill Development for Differently Abled",
-    "Disability Rights & Advocacy",
-    "Support for Caregivers",
-    "Anti-Bullying & Cyber Safety",
-    "Global Citizenship",
-    "STEM Education",
-    "Cybersecurity Awareness",
-
-    "Digital Literacy",
-    "Performing Arts",
-
-    "Literature & Reading",
-    "Culinary Arts",
-    "Cultural Festivals",
-    "Civic Participation",
-    "Voter Education & Registration",
-    "Policy Advocacy",
-    "Debates on Social Issues",
-    "Climate Change Action",
-    "Sustainable Living",
-    "Waste Management",
-    "Conservation Efforts",
-    "Green Technology",
-    "Youth Empowerment for Social Justice",
-    "Women in STEM",
-    "Rural Development & Empowerment",
-    "Disaster Relief & Preparedness",
-    "Mental Health Advocacy",
-    "Problem-Solving Skills",
-    "Negotiation Skills",
-    "Team Collaboration",
-    "Adaptability & Flexibility",
-
-    "Technical Writing",
-    "Analytical Skills",
-    "Research & Data Analysis",
-    "Software Development",
-    "Mechanical Skills",
-    "Engineering Skills",
-    "Architectural Design",
-    "Construction & Building Skills",
-    "Healthcare & Medical Skills",
-    "First Aid & Emergency Response",
-    "Public Health Awareness",
-    "Legal & Compliance Skills",
-    "Marketing & Sales Strategies",
-    "Supply Chain Management",
-    "Operations Management",
-    "Culinary Skills",
-    "Hospitality Management",
-    "Event Planning & Management",
-    "Journalism & Media",
-    "Public Relations",
-    "Content Creation",
-    // "Graphic Design",
-    // "Web Development",
-    // "App Development",
-    // "Cybersecurity Skills",
-    // "Database Management",
-    // "Cloud Computing",
-    // "Artificial Intelligence (AI)",
-    // "Machine Learning",
-    // "Blockchain Technology",
-    // "IoT (Internet of Things)",
-    // "Augmented Reality (AR) Development",
-    // "Virtual Reality (VR) Development",
-    // "3D Printing & Prototyping",
-    // "AutoCAD & Drafting",
-    // "Fashion Design & Textile",
-    // "Interior Design & Decor",
-    // "Fine Arts & Painting",
-    "Sculpture & Crafting",
-    // "Music Composition & Production",
-    "Dance & Choreography",
-    "Theater & Drama",
-    // "Film Directing & Production",
-    // "Photography Editing",
-    "Social Media Management",
-    "SEO & SEM Strategies",
-    "Human Resource Management",
-    "Talent Development",
-    "Employee Engagement",
-    "Sustainability & Corporate Responsibility"
+    "Technology",
+    "Finance",
+    "Healthcare",
+    "Engineering",
+    "Entertainment",
+    "Education",
+    "Environment",
+    "Social",
+    "Lifestyle",
+    "Law",
+    "Agriculture",
+    "Marketing",
+    "Arts",
+    "Design",
+    "Hospitality",
+    "Soft Skills"
   ];
 
   List<String> selectedInterests = [];
@@ -308,6 +194,60 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       throw Exception('Failed to generate feedback: ${response.body}');
     }
   }
+
+  // Future<String> generateFeedbackWithAI(String inputText) async {
+  //   // Specific prompt structure
+  //   String modifiedInput =
+  //       "Elaborate on the following statement with enthusiasm, using an active voice and an assertive tone: '$inputText'. Avoid adding any extra text or questions.";
+
+  //   // Groq client API interaction
+  //   final String groqApiUrl =
+  //       'https://api.groq.com/openai/v1/chat/completions'; // Assume this is the correct endpoint
+
+  //   final response = await http.post(
+  //     Uri.parse(groqApiUrl),
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization':
+  //           'Bearer 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', // Add your actual API key here
+  //     },
+  //     body: jsonEncode({
+  //       'model': 'llama-3.1-70b-versatile',
+  //       'messages': [
+  //         {
+  //           'role': 'user',
+  //           'content': modifiedInput,
+  //         }
+  //       ],
+  //       'temperature': 1,
+  //       'max_tokens': 1024,
+  //       'top_p': 1,
+  //       'stream': false, // Keeping it simple without streaming
+  //     }),
+  //   );
+
+  //   print('Response status: ${response.statusCode}');
+  //   print('Response body: ${response.body}');
+
+  //   if (response.statusCode == 200) {
+  //     final responseBody = jsonDecode(response.body);
+  //     // Debugging: Check the entire response body
+  //     print('Decoded response: $responseBody');
+
+  //     // Extract the relevant text from the response
+  //     if (responseBody.containsKey('choices') &&
+  //         responseBody['choices'].isNotEmpty &&
+  //         responseBody['choices'][0].containsKey('message') &&
+  //         responseBody['choices'][0]['message'].containsKey('content')) {
+  //       return responseBody['choices'][0]['message']['content'] ??
+  //           'No content returned';
+  //     } else {
+  //       throw Exception('Expected content structure not found in response');
+  //     }
+  //   } else {
+  //     throw Exception('Failed to generate feedback: ${response.body}');
+  //   }
+  // }
 
   @override
   void initState() {

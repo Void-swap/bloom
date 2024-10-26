@@ -27,9 +27,9 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
   List<String> perks = [];
   List<String> selectedSkills = [];
   List<String> dummyRoles = [
-    'Software Engineer',
-    'Data Analyst',
-    'Project Manager'
+    // 'Software Engineer',
+    // 'Data Analyst',
+    // 'Project Manager'
   ];
   List<String> dummySkills = ['Python', 'Flutter', 'Java', 'JavaScript'];
   Timestamp createdOn = Timestamp.now();
@@ -39,14 +39,12 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
     return Scaffold(
       appBar: AppBar(title: Text("Create Job")),
       body: SingleChildScrollView(
-        // Use SingleChildScrollView to preserve input
         padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Job Type Radio Buttons
               Text(
                 "Type*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -104,16 +102,12 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     ),
               ),
               const SizedBox(height: 5),
-
-              // Position Autocomplete
               Autocomplete<String>(
                 optionsBuilder: (TextEditingValue textEditingValue) {
-                  // Return empty list if the input is empty
                   if (textEditingValue.text.isEmpty) {
                     return const Iterable<String>.empty();
                   }
 
-                  // Combine dummy roles with any new input
                   return dummyRoles.where((String option) {
                     return option
                             .toLowerCase()
@@ -125,7 +119,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                 onSelected: (String selection) {
                   setState(() {
                     position = selection;
-                    // Add the selection to the dummyRoles if it's new
                     if (!dummyRoles.contains(selection)) {
                       dummyRoles.add(selection);
                     }
@@ -155,7 +148,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                 },
               ),
               const SizedBox(height: 10),
-              // Responsibility Field
               Text(
                 "Responsibility*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -165,7 +157,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     ),
               ),
               const SizedBox(height: 5),
-
               TextFormField(
                 maxLines: 4,
                 decoration: InputDecoration(
@@ -182,8 +173,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     value!.isEmpty ? "Please enter responsibility" : null,
               ),
               const SizedBox(height: 10),
-
-              // Duration
               Text(
                 "Duration*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -193,7 +182,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     ),
               ),
               const SizedBox(height: 5),
-
               Row(
                 children: [
                   Expanded(
@@ -243,8 +231,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                 ],
               ),
               const SizedBox(height: 10),
-
-              // Work Mode Radio Buttons
               Text(
                 "Work Mode*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -253,7 +239,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                       fontWeight: FontWeight.w700,
                     ),
               ),
-
               Row(
                 children: [
                   Flexible(
@@ -310,10 +295,7 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 10),
-
-              // Location Field
               Text(
                 "Office Location*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -337,8 +319,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     value!.isEmpty ? "Please enter location" : null,
               ),
               const SizedBox(height: 10),
-
-              // Start Date Picker
               Text(
                 "Start Date*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -348,7 +328,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     ),
               ),
               const SizedBox(height: 5),
-
               GestureDetector(
                 onTap: () async {
                   DateTime? pickedDate = await showDatePicker(
@@ -379,10 +358,7 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                   ),
                 ),
               ),
-
-              // Text(startDate ?? "No date selected"),
               SizedBox(height: 10),
-              // Pay Radio Buttons
               Text(
                 "Pay*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -408,8 +384,7 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                         setState(() {
                           payType = value as String?;
                           if (payType == "Unpaid") {
-                            payAmount =
-                                null; // Reset the amount if unpaid is selected
+                            payAmount = null;
                           }
                         });
                       },
@@ -435,8 +410,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                   ),
                 ],
               ),
-
-              // Amount Field (Visible if Paid is selected)
               if (payType == "Paid")
                 TextFormField(
                   decoration: InputDecoration(
@@ -453,8 +426,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                       value!.isEmpty ? "Please enter amount" : null,
                 ),
               const SizedBox(height: 10),
-
-              // Part-Time/Full-Time Radio Buttons
               Text(
                 "Part/Full Time",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -500,7 +471,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                 ],
               ),
               SizedBox(height: 10),
-              // Number of Openings Field
               Text(
                 "Number of opening",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -510,7 +480,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     ),
               ),
               const SizedBox(height: 5),
-
               TextFormField(
                 decoration: InputDecoration(
                   hintText: "Eg: 5",
@@ -526,7 +495,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     value!.isEmpty ? "Please enter number of openings" : null,
               ),
               SizedBox(height: 10),
-              // Perks Checkbox
               Text(
                 "Perks",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -557,7 +525,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                 );
               }).toList(),
               SizedBox(height: 10),
-              // Skills Autocomplete
               Text(
                 "What skill sets are you looking for?*",
                 style: Theme.of(context).textTheme.bodyMedium!.copyWith(
@@ -567,14 +534,12 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     ),
               ),
               const SizedBox(height: 5),
-
               Autocomplete<String>(
                 optionsBuilder: (TextEditingValue textEditingValue) {
                   if (textEditingValue.text.isEmpty) {
                     return const Iterable<String>.empty();
                   }
 
-                  // Combine dummy skills with any new input
                   return dummySkills.where((String option) {
                     return option
                             .toLowerCase()
@@ -586,7 +551,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                 onSelected: (String selection) {
                   setState(() {
                     selectedSkills.add(selection);
-                    // Add the selection to the dummySkills if it's new
                     if (!dummySkills.contains(selection)) {
                       dummySkills.add(selection);
                     }
@@ -608,7 +572,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                     focusNode: focusNode,
                     onEditingComplete: onEditingComplete,
                     onChanged: (value) {
-                      // Convert input to a list and store it
                       selectedSkills =
                           value.split(',').map((s) => s.trim()).toList();
                     },
@@ -616,8 +579,6 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                 },
               ),
               Text("Selected Skills: ${selectedSkills.join(", ")}"),
-
-              // Submit Button
               ElevatedButton(
                 onPressed: () async {
                   UserService userService = UserService();
@@ -626,47 +587,38 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                   String userUID = userService.getUserUID();
 
                   if (_formKey.currentState!.validate()) {
-                    // Create job model with UID
                     final jobData = {
-                      'uid': '', // Placeholder for UID
+                      'uid': '',
                       'name': userName,
                       'pfpImageURL': userPfp,
-                      'jobType':
-                          jobType, // Assuming jobType is defined elsewhere
+                      'jobType': jobType,
                       'position': position,
                       'responsibility': responsibility,
-                      'duration':
-                          '$duration $durationUnit', // Ensure these variables are defined
+                      'duration': '$duration $durationUnit',
                       'workMode': workMode,
                       'location': location,
-                      'startDate':
-                          startDate?.toString(), // Convert DateTime to string
+                      'startDate': startDate?.toString(),
                       'pay': payType == "Paid"
                           ? 'Paid: \$${payAmount?.toStringAsFixed(2)}'
                           : 'Unpaid',
                       'partFull': partFull,
-                      'numberOfOpenings':
-                          numberOfOpenings, // Ensure this is an integer
-                      'perks': perks, // Assuming perks is a list
-                      'skills':
-                          selectedSkills, // Assuming selectedSkills is a list
+                      'numberOfOpenings': numberOfOpenings,
+                      'perks': perks,
+                      'skills': selectedSkills,
                       'listingBy': userUID,
                       'createdOn': Timestamp.now(),
                     };
 
                     try {
-                      // Add job to Firestore and get the document reference
                       DocumentReference docRef = await FirebaseFirestore
                           .instance
                           .collection('careers')
                           .add(jobData);
 
-                      // Update job data with the generated UID
                       await docRef.update({
-                        'uid': docRef.id, // Set the UID to the document ID
+                        'uid': docRef.id,
                       });
 
-                      // Update user document with the created job ID
                       await FirebaseFirestore.instance
                           .collection('users')
                           .doc(userUID)
@@ -674,11 +626,9 @@ class _CreateCareerScreenState extends State<CreateCareerScreen> {
                         'listingCreated': FieldValue.arrayUnion([docRef.id]),
                       });
 
-                      // Show success message
                       ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text("Job created successfully!")));
                     } catch (error) {
-                      // Handle error
                       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                           content: Text("Failed to create job: $error")));
                     }

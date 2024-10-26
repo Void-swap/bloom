@@ -1,4 +1,4 @@
-import 'package:bloom/model/venue.dart'; // Import your VenueModel
+import 'package:bloom/model/venue.dart';
 import 'package:flutter/material.dart';
 
 class VenueDetailsScreen extends StatelessWidget {

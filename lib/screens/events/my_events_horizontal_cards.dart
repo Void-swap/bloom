@@ -15,7 +15,7 @@ class MyEventsHorizontal extends StatefulWidget {
 }
 
 class _MyEventsHorizontalState extends State<MyEventsHorizontal> {
-  final _box = GetStorage(); // Initialize GetStorage
+  final _box = GetStorage();
   UserModel? userData;
   List<Map<String, dynamic>> volunteerEvents = [];
 
@@ -28,6 +28,7 @@ class _MyEventsHorizontalState extends State<MyEventsHorizontal> {
   // Fetch user data from local storage
   void _fetchUserData() {
     final userDataMap = _box.read('userData') as Map<String, dynamic>?;
+
     if (userDataMap != null) {
       setState(() {
         userData = UserModel.fromMap(userDataMap);
@@ -36,47 +37,22 @@ class _MyEventsHorizontalState extends State<MyEventsHorizontal> {
     }
   }
 
-  // Fetch all events and filter by user in attendees
+  // Fetch all events and filter by user interests
   Future<void> _fetchVolunteerEvents() async {
     try {
       final eventsSnapshot =
           await FirebaseFirestore.instance.collection('Events').get();
 
-      if (userData!.role == "Learner") {
-        // Iterate through each event and check if the user is in the attendees list
-        for (var event in eventsSnapshot.docs) {
-          final attendees = List.from(event['attendees'] ?? []);
+      // Assuming userData.interests is a List<String> of user interests
+      final userInterests = userData?.interests ?? [];
 
-          final userAttendee = attendees.firstWhere(
-            (attendee) => attendee['userId'] == userData?.uid,
-            orElse: () => null,
-          );
+      for (var event in eventsSnapshot.docs) {
+        final eventData = event.data() as Map<String, dynamic>;
+        final eventTags = List<String>.from(eventData['tags'] ?? []);
 
-          // If user is a volunteer, add the event and their status to the list
-          if (userAttendee != null) {
-            volunteerEvents.add({
-              ...event.data(), // Event data
-              'status': userAttendee['status'], // Add user status to the event
-            });
-          }
-        }
-      } else {
-        // Iterate through each event and check if the user is in the attendees list
-        for (var event in eventsSnapshot.docs) {
-          final attendees = List.from(event['volunteers'] ?? []);
-
-          final userAttendee = attendees.firstWhere(
-            (attendee) => attendee['userId'] == userData?.uid,
-            orElse: () => null,
-          );
-
-          // If user is a volunteer, add the event and their status to the list
-          if (userAttendee != null) {
-            volunteerEvents.add({
-              ...event.data(), // Event data
-              'status': userAttendee['status'], // Add user status to the event
-            });
-          }
+        // Check if any user interest is in the event tags
+        if (eventTags.any((tag) => userInterests.contains(tag))) {
+          volunteerEvents.add(eventData);
         }
       }
       setState(() {}); // Update UI after fetching events
@@ -85,13 +61,12 @@ class _MyEventsHorizontalState extends State<MyEventsHorizontal> {
     }
   }
 
-//changes 2024-10-2 into 2 october, 24
+  // Format date
   String formatDate(String dateStr) {
     try {
       final dateTime = DateTime.parse(dateStr);
       return DateFormat('dd MMMM, yy').format(dateTime);
     } catch (e) {
-      //return the original string
       return dateStr;
     }
   }
@@ -99,9 +74,10 @@ class _MyEventsHorizontalState extends State<MyEventsHorizontal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: volunteerEvents.isEmpty
-            ? const Center(child: Text('No events found.'))
-            : SingleChildScrollView(
+      body: volunteerEvents.isEmpty
+          ? const Center(child: Text('No events found.'))
+          : Expanded(
+              child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
@@ -141,13 +117,11 @@ class _MyEventsHorizontalState extends State<MyEventsHorizontal> {
                                     },
                                   ),
                                 ),
-
                               // Foreground content
                               Container(
                                 width: double.maxFinite,
                                 decoration: const BoxDecoration(
-                                  color: Colors
-                                      .black54, // Semi-transparent overlay
+                                  color: Colors.black54,
                                 ),
                                 padding: const EdgeInsets.all(16.0),
                                 child: Padding(
@@ -314,6 +288,8 @@ class _MyEventsHorizontalState extends State<MyEventsHorizontal> {
                     );
                   }),
                 ),
-              ));
+              ),
+            ),
+    );
   }
 }

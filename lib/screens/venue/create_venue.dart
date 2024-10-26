@@ -1,16 +1,19 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:bloom/form.dart';
 import 'package:bloom/screens/events/create_event.dart';
 import 'package:bloom/screens/events/event_screen.dart';
 import 'package:bloom/services/services.dart';
 import 'package:bloom/utils/colors.dart';
+import 'package:bloom/utils/reusable_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:vibration/vibration.dart';
 
 class CreateVenueScreen extends StatefulWidget {
   @override
@@ -32,6 +35,7 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
   final TextEditingController _contactPhoneController = TextEditingController();
   final TextEditingController _accessibilityInfoController =
       TextEditingController();
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Use AudioCache for assets
 
   final List<XFile> _images = [];
   final List<String> _imageUrls = [];
@@ -39,7 +43,6 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
 
   int currentPage = 0;
 
-  // Facilities options
   List<String> facilitiesOptions = [
     'Wi-Fi',
     'AV Equipment',
@@ -54,6 +57,11 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
   bool isAvailableSpecificDays = false;
 
   void _submit() async {
+    await _audioPlayer.setSource(AssetSource('success.mp3'));
+    _audioPlayer.resume(); // Play the sound
+    if (await Vibration.hasVibrator() != null) {
+      Vibration.vibrate(duration: 500);
+    }
     if (_validateInputs()) {
       try {
         if (_images.isNotEmpty) {
@@ -88,14 +96,24 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
           "isAvailableAllTime": isAvailableForever,
         };
 
-        // Save to Firestore
         DocumentReference docRef =
             await FirebaseFirestore.instance.collection('venues').add(newVenue);
         await docRef.update({'UID': docRef.id});
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Venue created successfully!')));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return CustomSplash(
+            image: "assets/images/486.svg",
+            title: "🌟 Yay! Your venue is now live!",
+            subTitle:
+                "We’re thrilled to have your space on board—exciting opportunities await!",
+            buttonName: "Next",
+            nextPath: "/home",
+          );
+        }));
       } catch (e) {
-        print('Error creating venue: $e'); // Log the error
+        print('Error creating venue: $e');
         ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Failed to create venue: $e')));
       }
@@ -143,13 +161,11 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
         final storageRef =
             FirebaseStorage.instance.ref().child('eventImages').child(fileName);
 
-        // Create metadata
         final metadata = SettableMetadata(
           contentType: 'image/jpeg',
           cacheControl: 'max-age=3600',
         );
 
-        // Upload file with metadata
         await storageRef.putFile(File(image.path), metadata);
 
         final imageUrl = await storageRef.getDownloadURL();
@@ -187,136 +203,22 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
   }
 
   final List<String> availableInterests = [
-    "Leadership Skills",
-    "Public Speaking",
-
-    "Customer Service Skills",
-    "Presentation Skills", "Youth Empowerment",
-    "Women Empowerment",
-    "Critical Thinking",
-    "Emotional Intelligence",
-    "Time Management",
-    "Goal Setting", "Decision-Making Skills",
-    "Stress Management",
-    "Resilience Training",
-    "Storytelling",
-    "Debate and Argumentation",
-    "Nonverbal Communication",
-    "Creative Writing",
-    "Cross-Cultural Communication",
-    "Career Planning",
-    "Entrepreneurship",
-    "Financial Literacy",
-    "Digital Marketing",
-    "Project Management",
-    "Networking Skills",
-    "Design Thinking",
-    "Innovation & Ideation",
-    "Art & Creativity",
-    "Music & Performance Arts",
-    "Tech & Gadget Innovation",
-    "Sustainability & Eco-Innovation",
-
-    "Social Entrepreneurship",
-    "Community Service & Volunteering",
-    "Environmental Awareness",
-    "Human Rights & Advocacy",
-    "Diversity & Inclusion",
-    "Physical Fitness & Sports",
-    "Mental Health & Wellness",
-    "Nutrition & Healthy Living",
-    "Yoga & Wellness",
-    "Mind-Body Connection",
-    "Cultural Heritage & History",
-    "Interfaith Dialogue",
-    "Differently Abled-Friendly",
-    "Assistive Technology",
-    "Inclusive Education",
-    "Accessible Communication",
-    "Adaptive Sports",
-    "Skill Development for Differently Abled",
-    "Disability Rights & Advocacy",
-    "Support for Caregivers",
-    "Anti-Bullying & Cyber Safety",
-    "Global Citizenship",
-    "STEM Education",
-    "Cybersecurity Awareness",
-
-    "Digital Literacy",
-    "Performing Arts",
-
-    "Literature & Reading",
-    "Culinary Arts",
-    "Cultural Festivals",
-    "Civic Participation",
-    "Voter Education & Registration",
-    "Policy Advocacy",
-    "Debates on Social Issues",
-    "Climate Change Action",
-    "Sustainable Living",
-    "Waste Management",
-    "Conservation Efforts",
-    "Green Technology",
-    "Youth Empowerment for Social Justice",
-    "Women in STEM",
-    "Rural Development & Empowerment",
-    "Disaster Relief & Preparedness",
-    "Mental Health Advocacy",
-    "Problem-Solving Skills",
-    "Negotiation Skills",
-    "Team Collaboration",
-    "Adaptability & Flexibility",
-
-    "Technical Writing",
-    "Analytical Skills",
-    "Research & Data Analysis",
-    "Software Development",
-    "Mechanical Skills",
-    "Engineering Skills",
-    "Architectural Design",
-    "Construction & Building Skills",
-    "Healthcare & Medical Skills",
-    "First Aid & Emergency Response",
-    "Public Health Awareness",
-    "Legal & Compliance Skills",
-    "Marketing & Sales Strategies",
-    "Supply Chain Management",
-    "Operations Management",
-    "Culinary Skills",
-    "Hospitality Management",
-    "Event Planning & Management",
-    "Journalism & Media",
-    "Public Relations",
-    "Content Creation",
-    // "Graphic Design",
-    // "Web Development",
-    // "App Development",
-    // "Cybersecurity Skills",
-    // "Database Management",
-    // "Cloud Computing",
-    // "Artificial Intelligence (AI)",
-    // "Machine Learning",
-    // "Blockchain Technology",
-    // "IoT (Internet of Things)",
-    // "Augmented Reality (AR) Development",
-    // "Virtual Reality (VR) Development",
-    // "3D Printing & Prototyping",
-    // "AutoCAD & Drafting",
-    // "Fashion Design & Textile",
-    // "Interior Design & Decor",
-    // "Fine Arts & Painting",
-    "Sculpture & Crafting",
-    // "Music Composition & Production",
-    "Dance & Choreography",
-    "Theater & Drama",
-    // "Film Directing & Production",
-    // "Photography Editing",
-    "Social Media Management",
-    "SEO & SEM Strategies",
-    "Human Resource Management",
-    "Talent Development",
-    "Employee Engagement",
-    "Sustainability & Corporate Responsibility"
+    "Technology",
+    "Finance",
+    "Healthcare",
+    "Engineering",
+    "Entertainment",
+    "Education",
+    "Environment",
+    "Social",
+    "Lifestyle",
+    "Law",
+    "Agriculture",
+    "Marketing",
+    "Arts",
+    "Design",
+    "Hospitality",
+    "Soft Skills"
   ];
 
   List<String> selectedInterests = [];
@@ -332,7 +234,7 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
               title: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Select Interests'), // Search field
+                  const Text('Select Interests'),
                   const SizedBox(height: 10),
                   TextField(
                     decoration: const InputDecoration(
@@ -378,7 +280,6 @@ class _CreateVenueScreenState extends State<CreateVenueScreen> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      // Update the interests controller with selected interests
                       _tagsController.text = selectedInterests.join(', ');
                     });
                     Navigator.of(context).pop();

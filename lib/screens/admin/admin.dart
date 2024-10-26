@@ -176,12 +176,12 @@ class _AdminDashboardState extends State<AdminDashboard> {
         } else {
           print("No valid percentages found for interests.");
         }
-        return; // Exit if successful
+        return;
       } else {
         print("Error: ${response.body}");
         retries--;
         if (retries == 0) {}
-        await Future.delayed(Duration(seconds: 2)); // Wait before retrying
+        await Future.delayed(Duration(seconds: 2));
       }
     }
   }
@@ -248,19 +248,17 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
         if (percentages.isNotEmpty) {
           setState(() {
-            skillsData = percentages; // Update state for skills
+            skillsData = percentages;
           });
         } else {
           print("No valid percentages found for skills.");
         }
-        return; // Exit if successful
+        return;
       } else {
         print("Error: ${response.body}");
         retries--;
-        if (retries == 0) {
-          // Handle final failure if needed
-        }
-        await Future.delayed(Duration(seconds: 2)); // Wait before retrying
+        if (retries == 0) {}
+        await Future.delayed(Duration(seconds: 2));
       }
     }
   }

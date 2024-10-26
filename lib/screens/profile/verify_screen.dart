@@ -1,14 +1,17 @@
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:bloom/form.dart';
 import 'package:bloom/model/user.dart';
 import 'package:bloom/utils/colors.dart';
 import 'package:bloom/utils/custom_headers.dart';
+import 'package:bloom/utils/reusable_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:vibration/vibration.dart';
 
 class GetVerifiedScreen extends StatefulWidget {
   const GetVerifiedScreen({super.key});
@@ -25,6 +28,8 @@ class _GetVerifiedScreenState extends State<GetVerifiedScreen> {
   late String _uid;
   final _box = GetStorage(); // Initialize GetStorage
   UserModel? userData;
+  final AudioPlayer _audioPlayer = AudioPlayer(); // Use AudioCache for assets
+
   @override
   void initState() {
     super.initState();
@@ -74,7 +79,11 @@ class _GetVerifiedScreenState extends State<GetVerifiedScreen> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-
+      await _audioPlayer.setSource(AssetSource('success.mp3'));
+      _audioPlayer.resume(); // Play the sound
+      if (await Vibration.hasVibrator() != null) {
+        Vibration.vibrate(duration: 500);
+      }
       try {
         String? cvUrl;
         if (_cvFile != null) {
@@ -99,21 +108,26 @@ class _GetVerifiedScreenState extends State<GetVerifiedScreen> {
 
         // Update user's verification status in Firestore
         final usersCollection = firestore.collection('users');
-        final userDoc =
-            usersCollection.doc(uid); // Assuming email as document ID
+        final userDoc = usersCollection.doc(uid);
 
         await userDoc.update({
           'isVerified': 'Pending',
         });
 
-        // Update local storage
         box.write('isVerified', 'Pending');
-
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return CustomSplash(
+            image: "assets/images/phone.svg",
+            title: "Verification Request Submitted!",
+            subTitle: "Next Steps: Stay Tuned for Updates",
+            buttonName: "Next",
+            nextPath: "/home",
+          );
+        }));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Verification request submitted')),
         );
-
-        // Optionally navigate to another screen or clear the form
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to submit request: $e')),

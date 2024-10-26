@@ -3,15 +3,13 @@ import 'package:bloom/model/user.dart';
 import 'package:bloom/screens/careers/career_in_detail_page.dart';
 import 'package:bloom/screens/events/create_event.dart';
 import 'package:bloom/utils/colors.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Ensure you import Firebase Auth
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:shimmer/shimmer.dart';
 
 void _showFilterBottomSheet(BuildContext context) {
   showModalBottomSheet(
@@ -198,24 +196,20 @@ class CareersListingPage extends StatelessWidget {
               final location = job['location'] ?? 'Location not specified';
               final startDate = job['startDate'] != null
                   ? DateTime.parse(job['startDate'])
-                  : DateTime.now(); // Fallback to now
-              final pay = job['pay'] ??
-                  0.0; // Assuming 0.0 is a reasonable default for unpaid positions
+                  : DateTime.now();
+              final pay = job['pay'] ?? 0.0;
               final fullOrPart = job['partFull'] ?? 'Not specified';
-              final numberOfOpenings =
-                  job['numberOfOpenings'] ?? 0; // Default to 0 if not specified
+              final numberOfOpenings = job['numberOfOpenings'] ?? 0;
               final perks = List<String>.from(job['perks'] ?? []);
               final skills = List<String>.from(job['skills'] ?? []);
               final createdOn = job['createdOn'] != null
                   ? (job['createdOn'] as Timestamp).toDate()
-                  : DateTime.now(); // Fallback to now
+                  : DateTime.now();
               final creatorName = job['name'] ?? 'name';
               final pfpImage = job['pfpImageURl'] ?? '';
 
-              // Fetch current user's ID
               final currentUserId = FirebaseAuth.instance.currentUser?.uid;
 
-              // Check if the current user has already applied
               final List<dynamic> applications = job['applications'] ?? [];
               final alreadyApplied =
                   applications.any((app) => app['userId'] == currentUserId);
@@ -243,7 +237,6 @@ class CareersListingPage extends StatelessWidget {
                     clipBehavior: Clip.antiAlias,
                     child: Stack(
                       children: [
-                        // Foreground content
                         Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
@@ -347,50 +340,48 @@ class CareersListingPage extends StatelessWidget {
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      RichText(
-                                        text: TextSpan(
-                                          text: 'Responsibilities ',
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w500,
-                                            color: Color(0xff2e2e2e),
-                                          ),
-                                          children: [
-                                            TextSpan(
-                                              // text: ' A mustard yellow traditional outfit is required for Alia Bhatt for her new movie promotions. The fabric...',
-                                              // text: "}"
-                                              text: responsibility,
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w400,
-                                                  color: Color(0xff424242),
-                                                  height: 1.4),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        RichText(
+                                          text: TextSpan(
+                                            text: 'Responsibilities ',
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xff2e2e2e),
                                             ),
-                                          ],
+                                            children: [
+                                              TextSpan(
+                                                text: responsibility,
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight: FontWeight.w400,
+                                                    color: Color(0xff424242),
+                                                    height: 1.4),
+                                              ),
+                                            ],
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        getTimeAgo(createdOn.toString()),
-                                        // "37 Mins ago",
-                                        style: const TextStyle(
-                                          // fontFamily: "Poppins",
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w400,
-                                          color: Color(0xff8b8b8b),
-                                          height: (18 / 12),
+                                        const SizedBox(
+                                          height: 5,
                                         ),
-                                        textAlign: TextAlign.left,
-                                      ),
-                                    ],
+                                        Text(
+                                          getTimeAgo(createdOn.toString()),
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w400,
+                                            color: Color(0xff8b8b8b),
+                                            height: (18 / 12),
+                                          ),
+                                          textAlign: TextAlign.left,
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
@@ -499,13 +490,10 @@ class BuildInfoColumns extends StatelessWidget {
 }
 
 String getTimeAgo(String timestampString) {
-  // Convert the Firestore timestamp string to a DateTime
   DateTime timestamp = DateTime.parse(timestampString);
 
-  // Get the current time
   DateTime now = DateTime.now();
 
-  // Calculate the time difference
   Duration difference = now.difference(timestamp);
 
   if (difference.inSeconds < 60) {
@@ -549,35 +537,17 @@ class ProfilePic extends StatelessWidget {
       child: CircleAvatar(
         radius: 25,
         backgroundColor: imgUrl.isNotEmpty ? Colors.white : Colors.transparent,
-        child: imgUrl != null && imgUrl.isNotEmpty
-            ? CachedNetworkImage(
-                imageUrl: imgUrl!, // Actual image URL
-                placeholder: (context, url) => Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: const CircleAvatar(
-                    radius: 25,
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                imageBuilder: (context, imageProvider) => CircleAvatar(
-                  radius: 25,
-                  backgroundImage: imageProvider,
-                ),
-              )
-            : CircleAvatar(
-                // Fallback to asset image
-                radius: 25,
-                backgroundColor: Colors.transparent,
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(25),
-                    child: const Icon(
-                      IconlyBold.profile,
-                      color: primaryBlack,
-                      size: 25,
-                    )), // Provide the path to your asset image
-              ),
+        child: CircleAvatar(
+          radius: 25,
+          backgroundColor: Colors.transparent,
+          child: ClipRRect(
+              borderRadius: BorderRadius.circular(25),
+              child: const Icon(
+                IconlyBold.profile,
+                color: primaryBlack,
+                size: 25,
+              )),
+        ),
       ),
     );
   }

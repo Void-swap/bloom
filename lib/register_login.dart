@@ -169,7 +169,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
   bool _isConfirmPasswordVisible = false;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isRegisterMode = false;
-  final box = GetStorage(); // Initialize GetStorage
+  final box = GetStorage();
   void _togglePasswordVisibility() {
     setState(() {
       _isPasswordVisible = !_isPasswordVisible;
@@ -185,7 +185,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
   void _authenticate(BuildContext context) async {
     if (_isRegisterMode) {
       if (_passwordController.text != _confirmPasswordController.text) {
-        _showLottieAnimation('error');
+        _showLottieAnimation(context, 'error');
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -197,7 +197,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
       }
 
       try {
-        _showLottieAnimation('confetti');
+        // _showLottieAnimation(context, 'confetti');
 
         UserCredential userCredential =
             await _auth.createUserWithEmailAndPassword(
@@ -217,14 +217,12 @@ class _RegisterLoginState extends State<RegisterLogin> {
             // User exists
             final userData = userSnapshot.data();
             if (userData != null) {
-              _showLottieAnimation('tickAnimation');
+              _showLottieAnimation(context, 'tickAnimation');
 
-              // Save user data to GetStorage
               box.write('userData', userData);
               Navigator.pushReplacementNamed(context, "/home");
             }
           } else {
-            // User does not exist, add email to GetStorage
             box.write('userEmail', email);
             print('User registered: ${userCredential.user?.email}');
             ScaffoldMessenger.of(context).showSnackBar(
@@ -241,7 +239,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
           }
         }
       } catch (e) {
-        _showLottieAnimation('error');
+        _showLottieAnimation(context, 'error');
 
         print('Failed to register: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -261,26 +259,22 @@ class _RegisterLoginState extends State<RegisterLogin> {
 
         final User? user = userCredential.user;
         if (user != null) {
-          _showLottieAnimation('tickAnimation');
+          _showLottieAnimation(context, 'tickAnimation');
 
           String uid = user.uid ?? '';
 
-          // Check if the user exists in Firestore
           final userDoc =
               FirebaseFirestore.instance.collection('users').doc(uid);
           final userSnapshot = await userDoc.get();
           if (userSnapshot.exists) {
-            // User exists
             final userData = userSnapshot.data();
             if (userData != null) {
-              // Save user data to GetStorage
               box.write('userData', userData);
               Navigator.pushReplacementNamed(context, "/home");
             }
           } else {
-            _showLottieAnimation('error');
+            _showLottieAnimation(context, 'error');
 
-            // User does not exist
             print('User does not exist in Firestore');
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -291,7 +285,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
           }
         }
       } on FirebaseAuthException catch (e) {
-        _showLottieAnimation('error');
+        _showLottieAnimation(context, 'error');
 
         String errorMessage;
         if (e.code == 'user-not-found') {
@@ -312,7 +306,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
           ),
         );
       } catch (e) {
-        _showLottieAnimation('error');
+        _showLottieAnimation(context, 'error');
 
         print('Failed to sign in: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -325,7 +319,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
     }
   }
 
-  void _showLottieAnimation(String animationType) {
+  void _showLottieAnimation(BuildContext context, String animationType) {
     showDialog(
       barrierColor: Colors.transparent,
       context: context,
@@ -333,8 +327,6 @@ class _RegisterLoginState extends State<RegisterLogin> {
       builder: (BuildContext context) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          // elevation: 0,
-          // // backgroundColor: Colors.transparent,
           child: Center(
             child: Lottie.asset(
               'assets/lottie/$animationType.json',
@@ -342,7 +334,8 @@ class _RegisterLoginState extends State<RegisterLogin> {
               height: 300,
               repeat: false,
               onLoaded: (composition) {
-                Future.delayed(const Duration(seconds: 2), () {
+                // Use the composition duration to delay closing
+                Future.delayed(Duration(seconds: 2), () {
                   Navigator.of(context).pop();
                 });
               },
@@ -434,7 +427,7 @@ class _RegisterLoginState extends State<RegisterLogin> {
                           });
                         },
                         child: Text(
-                          _isRegisterMode ? "Login" : "Create Acc",
+                          _isRegisterMode ? "Login" : "Create Account",
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,

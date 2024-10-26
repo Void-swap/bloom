@@ -249,7 +249,7 @@ class FormScreen extends StatefulWidget {
 }
 
 class _FormScreenState extends State<FormScreen> {
-  final AudioPlayer _audioPlayer = AudioPlayer(); // Use AudioCache for assets
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   final _formKey = GlobalKey<FormState>();
   final box = GetStorage();
@@ -681,7 +681,6 @@ class _FormScreenState extends State<FormScreen> {
                           onInputChanged: (PhoneNumber number) {
                             String _phoneNumber = number.phoneNumber ?? '';
                             print("number is : ${_phoneNumber}");
-                            // });
                           },
                           selectorConfig: const SelectorConfig(
                               trailingSpace: false,
@@ -736,7 +735,6 @@ class _FormScreenState extends State<FormScreen> {
                       if (_formKey.currentState?.validate() ?? false) {
                         _formKey.currentState?.save();
 
-                        // Get the current user's UID from Firebase Auth
                         final user = FirebaseAuth.instance.currentUser;
                         if (user == null) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -748,7 +746,7 @@ class _FormScreenState extends State<FormScreen> {
                         final uid = user.uid; // Use the user's UID
                         final userDoc = FirebaseFirestore.instance
                             .collection('users')
-                            .doc(uid); // Use UID as document ID
+                            .doc(uid);
 
                         final userData = {
                           'uid': uid,

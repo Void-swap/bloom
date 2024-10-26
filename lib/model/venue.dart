@@ -14,9 +14,8 @@ class VenueModel {
   List<Map<String, dynamic>> reviews;
   String accessibilityInfo;
   List<String> tags;
-  List<String> Availibility; // New field for available days
-  bool isAvailableAllTime; // Indicates if the venue is available at all times
-
+  List<String> Availibility;
+  bool isAvailableAllTime;
   VenueModel({
     required this.UID,
     required this.name,
@@ -33,8 +32,8 @@ class VenueModel {
     required this.reviews,
     required this.accessibilityInfo,
     required this.tags,
-    required this.Availibility, // Initialize new field
-    required this.isAvailableAllTime, // Initialize new field
+    required this.Availibility,
+    required this.isAvailableAllTime,
   });
 
   Map<String, dynamic> toMap() {
@@ -54,8 +53,8 @@ class VenueModel {
       'reviews': reviews,
       'accessibilityInfo': accessibilityInfo,
       'tags': tags,
-      'Availibility': Availibility, // Add to map
-      'isAvailableAllTime': isAvailableAllTime, // Add to map
+      'Availibility': Availibility,
+      'isAvailableAllTime': isAvailableAllTime,
     };
   }
 
@@ -76,10 +75,8 @@ class VenueModel {
       reviews: List<Map<String, dynamic>>.from(map['reviews'] ?? []),
       accessibilityInfo: map['accessibilityInfo'] ?? '',
       tags: List<String>.from(map['tags'] ?? []),
-      Availibility:
-          List<String>.from(map['Availibility'] ?? []), // Initialize new field
-      isAvailableAllTime:
-          map['isAvailableAllTime'] ?? false, // Initialize new field
+      Availibility: List<String>.from(map['Availibility'] ?? []),
+      isAvailableAllTime: map['isAvailableAllTime'] ?? false,
     );
   }
 }

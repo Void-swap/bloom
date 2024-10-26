@@ -1,12 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:audioplayers/audioplayers.dart';
 import 'package:bloom/form.dart';
 import 'package:bloom/model/venue.dart';
 import 'package:bloom/screens/venue/venue_detail.dart';
 import 'package:bloom/services/services.dart';
 import 'package:bloom/utils/colors.dart';
 import 'package:bloom/utils/random_colors.dart';
+import 'package:bloom/utils/reusable_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +18,7 @@ import 'package:iconly/iconly.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:vibration/vibration.dart';
 
 import '../../model/event.dart';
 import 'event_screen.dart';
@@ -44,8 +47,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   String? selectedTime;
   List<DocumentSnapshot> availableVenues = [];
   int? selectedVenueIndex;
-  String eventType = 'In person'; // 'Virtual' or 'In person'
+  String eventType = 'In person';
   bool isAvailableForever = false;
+  final AudioPlayer _audioPlayer = AudioPlayer();
 
   final List<XFile> _images = [];
   final List<String> _imageUrls = [];
@@ -57,10 +61,9 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     if (pickedFile != null) {
       setState(() {
         if (index < _images.length) {
-          _images[index] =
-              pickedFile; // Replace existing image if index is valid
+          _images[index] = pickedFile;
         } else {
-          _images.add(pickedFile); // Add new image
+          _images.add(pickedFile);
         }
       });
       await _uploadImages();
@@ -87,7 +90,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
           cacheControl: 'max-age=3600',
         );
 
-        // Upload file with metadata
         await storageRef.putFile(File(image.path), metadata);
 
         final imageUrl = await storageRef.getDownloadURL();
@@ -110,136 +112,22 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   }
 
   final List<String> availableInterests = [
-    "Leadership Skills",
-    "Public Speaking",
-
-    "Customer Service Skills",
-    "Presentation Skills", "Youth Empowerment",
-    "Women Empowerment",
-    "Critical Thinking",
-    "Emotional Intelligence",
-    "Time Management",
-    "Goal Setting", "Decision-Making Skills",
-    "Stress Management",
-    "Resilience Training",
-    "Storytelling",
-    "Debate and Argumentation",
-    "Nonverbal Communication",
-    "Creative Writing",
-    "Cross-Cultural Communication",
-    "Career Planning",
-    "Entrepreneurship",
-    "Financial Literacy",
-    "Digital Marketing",
-    "Project Management",
-    "Networking Skills",
-    "Design Thinking",
-    "Innovation & Ideation",
-    "Art & Creativity",
-    "Music & Performance Arts",
-    "Tech & Gadget Innovation",
-    "Sustainability & Eco-Innovation",
-
-    "Social Entrepreneurship",
-    "Community Service & Volunteering",
-    "Environmental Awareness",
-    "Human Rights & Advocacy",
-    "Diversity & Inclusion",
-    "Physical Fitness & Sports",
-    "Mental Health & Wellness",
-    "Nutrition & Healthy Living",
-    "Yoga & Wellness",
-    "Mind-Body Connection",
-    "Cultural Heritage & History",
-    "Interfaith Dialogue",
-    "Differently Abled-Friendly",
-    "Assistive Technology",
-    "Inclusive Education",
-    "Accessible Communication",
-    "Adaptive Sports",
-    "Skill Development for Differently Abled",
-    "Disability Rights & Advocacy",
-    "Support for Caregivers",
-    "Anti-Bullying & Cyber Safety",
-    "Global Citizenship",
-    "STEM Education",
-    "Cybersecurity Awareness",
-
-    "Digital Literacy",
-    "Performing Arts",
-
-    "Literature & Reading",
-    "Culinary Arts",
-    "Cultural Festivals",
-    "Civic Participation",
-    "Voter Education & Registration",
-    "Policy Advocacy",
-    "Debates on Social Issues",
-    "Climate Change Action",
-    "Sustainable Living",
-    "Waste Management",
-    "Conservation Efforts",
-    "Green Technology",
-    "Youth Empowerment for Social Justice",
-    "Women in STEM",
-    "Rural Development & Empowerment",
-    "Disaster Relief & Preparedness",
-    "Mental Health Advocacy",
-    "Problem-Solving Skills",
-    "Negotiation Skills",
-    "Team Collaboration",
-    "Adaptability & Flexibility",
-
-    "Technical Writing",
-    "Analytical Skills",
-    "Research & Data Analysis",
-    "Software Development",
-    "Mechanical Skills",
-    "Engineering Skills",
-    "Architectural Design",
-    "Construction & Building Skills",
-    "Healthcare & Medical Skills",
-    "First Aid & Emergency Response",
-    "Public Health Awareness",
-    "Legal & Compliance Skills",
-    "Marketing & Sales Strategies",
-    "Supply Chain Management",
-    "Operations Management",
-    "Culinary Skills",
-    "Hospitality Management",
-    "Event Planning & Management",
-    "Journalism & Media",
-    "Public Relations",
-    "Content Creation",
-    // "Graphic Design",
-    // "Web Development",
-    // "App Development",
-    // "Cybersecurity Skills",
-    // "Database Management",
-    // "Cloud Computing",
-    // "Artificial Intelligence (AI)",
-    // "Machine Learning",
-    // "Blockchain Technology",
-    // "IoT (Internet of Things)",
-    // "Augmented Reality (AR) Development",
-    // "Virtual Reality (VR) Development",
-    // "3D Printing & Prototyping",
-    // "AutoCAD & Drafting",
-    // "Fashion Design & Textile",
-    // "Interior Design & Decor",
-    // "Fine Arts & Painting",
-    "Sculpture & Crafting",
-    // "Music Composition & Production",
-    "Dance & Choreography",
-    "Theater & Drama",
-    // "Film Directing & Production",
-    // "Photography Editing",
-    "Social Media Management",
-    "SEO & SEM Strategies",
-    "Human Resource Management",
-    "Talent Development",
-    "Employee Engagement",
-    "Sustainability & Corporate Responsibility"
+    "Technology",
+    "Finance",
+    "Healthcare",
+    "Engineering",
+    "Entertainment",
+    "Education",
+    "Environment",
+    "Social",
+    "Lifestyle",
+    "Law",
+    "Agriculture",
+    "Marketing",
+    "Arts",
+    "Design",
+    "Hospitality",
+    "Soft Skills"
   ];
 
   List<String> selectedInterests = [];
@@ -301,7 +189,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 TextButton(
                   onPressed: () {
                     setState(() {
-                      // Update the interests controller with selected interests
                       _tagsController.text = selectedInterests.join(', ');
                     });
                     Navigator.of(context).pop();
@@ -323,7 +210,6 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         return AlertDialog(
           title: const Text('Select Date'),
           content: Container(
-            // Wrap in container to limit the height in case there are many items
             width: double.maxFinite,
             child: ListView.builder(
               shrinkWrap: true,
@@ -335,8 +221,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                     setState(() {
                       selectedDate = availableDates![index];
                     });
-                    Navigator.of(context)
-                        .pop(); // Close the dialog after selecting
+                    Navigator.of(context).pop();
                   },
                 );
               },
@@ -371,17 +256,20 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     final box = GetStorage();
     final userrr = box.read('userData') ?? 'User not found';
     print(userrr);
-
+    await _audioPlayer.setSource(AssetSource('success.mp3'));
+    _audioPlayer.resume(); // Play the sound
+    if (await Vibration.hasVibrator() != null) {
+      Vibration.vibrate(duration: 500);
+    }
     UserService userService = UserService();
     String userName = userService.getUserName();
     String userPfp = userService.getUserProfilePic();
     String userUID = userService.getUserUID();
     if (_validateInputs()) {
       if (_images.isNotEmpty) {
-        await _uploadImages(); // Ensure this completes first
+        await _uploadImages();
       }
 
-      // Only create the event if images are uploaded successfully
       // if (_imageUrls.isNotEmpty) {
       final eventData = EventModel(
         UID: '',
@@ -413,6 +301,16 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
         await docRef.update({'UID': docRef.id});
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Event created successfully!')));
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return CustomSplash(
+            image: "assets/images/phone.svg",
+            title: " 🎉 You're event request is sent",
+            subTitle: "Thank you for joining us—exciting things are ahead!",
+            buttonName: "Next",
+            nextPath: "/home",
+          );
+        }));
         _clearForm();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -437,7 +335,7 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
     selectedTime = null;
     availableDates = null;
     isAvailableForever = false;
-    eventType = 'In person'; // Reset event type
+    eventType = 'In person';
     setState(() {});
   }
 
@@ -529,33 +427,25 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
   }
 
   Future<String> generateFeedbackWithAI(String inputText) async {
+    const String apiKey = 'AIzaSyDT_p6t2MjZhrfNocqQri2ovGPeqrV_n08';
+    const String apiUrl =
+        'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent';
+
     // Specific prompt structure
     String modifiedInput =
         "Elaborate on the following statement with enthusiasm, using an active voice and an assertive tone: '$inputText'. Avoid adding any extra text or questions.";
 
-    // Groq client API interaction
-    final String groqApiUrl =
-        'https://api.groq.com/openai/v1/chat/completions'; // Assume this is the correct endpoint
-
     final response = await http.post(
-      Uri.parse(groqApiUrl),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer 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', // Add your actual API key here
-      },
+      Uri.parse('$apiUrl?key=$apiKey'),
+      headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
-        'model': 'llama-3.1-70b-versatile',
-        'messages': [
+        'contents': [
           {
-            'role': 'user',
-            'content': modifiedInput,
+            'parts': [
+              {'text': modifiedInput}
+            ]
           }
-        ],
-        'temperature': 1,
-        'max_tokens': 1024,
-        'top_p': 1,
-        'stream': false, // Keeping it simple without streaming
+        ]
       }),
     );
 
@@ -564,15 +454,13 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
 
     if (response.statusCode == 200) {
       final responseBody = jsonDecode(response.body);
-      // Debugging: Check the entire response body
       print('Decoded response: $responseBody');
 
-      // Extract the relevant text from the response
-      if (responseBody.containsKey('choices') &&
-          responseBody['choices'].isNotEmpty &&
-          responseBody['choices'][0].containsKey('message') &&
-          responseBody['choices'][0]['message'].containsKey('content')) {
-        return responseBody['choices'][0]['message']['content'] ??
+      if (responseBody.containsKey('candidates') &&
+          responseBody['candidates'].isNotEmpty &&
+          responseBody['candidates'][0].containsKey('content') &&
+          responseBody['candidates'][0]['content']['parts'].isNotEmpty) {
+        return responseBody['candidates'][0]['content']['parts'][0]['text'] ??
             'No content returned';
       } else {
         throw Exception('Expected content structure not found in response');
@@ -581,6 +469,60 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
       throw Exception('Failed to generate feedback: ${response.body}');
     }
   }
+
+  // Future<String> generateFeedbackWithAI(String inputText) async {
+  //   // Specific prompt structure
+  //   String modifiedInput =
+  //       "Elaborate on the following statement with enthusiasm, using an active voice and an assertive tone: '$inputText'. Avoid adding any extra text or questions.";
+
+  //   // Groq client API interaction
+  //   final String groqApiUrl =
+  //       'https://api.groq.com/openai/v1/chat/completions'; // Assume this is the correct endpoint
+
+  //   final response = await http.post(
+  //     Uri.parse(groqApiUrl),
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization':
+  //           'Bearer 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', // Add your actual API key here
+  //     },
+  //     body: jsonEncode({
+  //       'model': 'llama-3.1-70b-versatile',
+  //       'messages': [
+  //         {
+  //           'role': 'user',
+  //           'content': modifiedInput,
+  //         }
+  //       ],
+  //       'temperature': 1,
+  //       'max_tokens': 1024,
+  //       'top_p': 1,
+  //       'stream': false, // Keeping it simple without streaming
+  //     }),
+  //   );
+
+  //   print('Response status: ${response.statusCode}');
+  //   print('Response body: ${response.body}');
+
+  //   if (response.statusCode == 200) {
+  //     final responseBody = jsonDecode(response.body);
+  //     // Debugging: Check the entire response body
+  //     print('Decoded response: $responseBody');
+
+  //     // Extract the relevant text from the response
+  //     if (responseBody.containsKey('choices') &&
+  //         responseBody['choices'].isNotEmpty &&
+  //         responseBody['choices'][0].containsKey('message') &&
+  //         responseBody['choices'][0]['message'].containsKey('content')) {
+  //       return responseBody['choices'][0]['message']['content'] ??
+  //           'No content returned';
+  //     } else {
+  //       throw Exception('Expected content structure not found in response');
+  //     }
+  //   } else {
+  //     throw Exception('Failed to generate feedback: ${response.body}');
+  //   }
+  // }
 
 // // Function to generate feedback using LLaMA from Hugging Face
 //   Future<String> generateFeedbackWithLlama(String inputText) async {
@@ -790,6 +732,17 @@ class _CreateEventScreenState extends State<CreateEventScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
+                    // Navigator.pushReplacement(context,
+                    //     MaterialPageRoute(builder: (context) {
+                    //   return CustomSplash(
+                    //     image: "assets/images/connect.svg",
+                    //     title: "Welcome aboard, ",
+                    //     subTitle: "You're all set to ",
+                    //     subTitle2: "Bridge the gap",
+                    //     buttonName: "Get Started",
+                    //     nextPath: "/home",
+                    //   );
+                    // }));
                     if (currentPage < 2) {
                       _controller.nextPage(
                           duration: const Duration(milliseconds: 900),

@@ -1,23 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class JobsModel {
-  String uid; // Unique job ID
-  String type; // Job type (e.g., "Full-time", "Part-time", "Internship")
-  String listedBy; // User or organization listing the job
-  String responsibility; // Job description or key responsibilities
-  String duration; // Job duration (e.g., "6 months", "1 year")
-  String workMode; // Work mode (e.g., "Remote", "On-site", "Hybrid")
-  String location; // Job location (if on-site or hybrid)
-  DateTime startDate; // Start date of the job
-  double pay; // Salary or hourly pay
-  String fullOrPart; // Full-time or Part-time
-  int numberOfOpenings; // Number of openings for the job
-  List<String> perks; // List of perks offered
-  List<String> skills; // Required skills for the job
-  DateTime createdOn; // Timestamp for job creation
-  String position; // Job position title
-  String pfpImageURL; // Profile image URL
-  String name; // Company name
+  String uid;
+  String type;
+  String listedBy;
+  String responsibility;
+  String duration;
+  String workMode;
+  String location;
+  DateTime startDate;
+  double pay;
+  String fullOrPart;
+  int numberOfOpenings;
+  List<String> perks;
+  List<String> skills;
+  DateTime createdOn;
+  String position;
+  String pfpImageURL;
+  String name;
 
   JobsModel({
     required this.uid,

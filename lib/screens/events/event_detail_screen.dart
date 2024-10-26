@@ -1,8 +1,11 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:bloom/form.dart';
 import 'package:bloom/model/user.dart';
+import 'package:bloom/screens/events/create_event.dart';
+import 'package:bloom/screens/events/event_screen.dart';
 import 'package:bloom/screens/events/verify_event_detail.dart';
 import 'package:bloom/utils/colors.dart';
+import 'package:bloom/utils/reusable_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -60,8 +63,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       });
     } else {
       final eventSnapshot = await eventDocRef.get();
-      final volunteers = List.from(eventSnapshot.data()?['volunteers'] ??
-          []); // Check if the user is already in the volunteers list
+      final volunteers = List.from(eventSnapshot.data()?['volunteers'] ?? []);
       setState(() {
         isApplied =
             volunteers.any((attendee) => attendee['userId'] == userData!.uid);
@@ -73,7 +75,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     if (barcodeCapture.barcodes.isNotEmpty) {
       final barcode = barcodeCapture.barcodes.first;
 
-      // Split the QR code data assuming it's in the format "eventId,userId"
       final qrData = barcode.rawValue?.split(',');
       if (qrData == null || qrData.length != 2) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -81,8 +82,8 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         );
         return;
       }
-      final String scannedEventId = qrData[0]; // The eventId part
-      final String scannedUserId = qrData[1]; // The userId part
+      final String scannedEventId = qrData[0];
+      final String scannedUserId = qrData[1];
       print(scannedEventId);
       print(scannedEventId);
       print(scannedEventId);
@@ -95,8 +96,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       print(scannedUserId);
       print(scannedUserId);
 
-//UNIQUE SCANNER FOR EACH EVENT
-      // Check if the scanned eventId matches the current event
       if (scannedEventId != widget.event['UID']) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('QR code does not match this event')),
@@ -105,7 +104,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       }
       final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-      // Get the event document using the eventId
       DocumentReference eventRef =
           _firestore.collection('Events').doc(scannedEventId);
       DocumentReference userDoc =
@@ -120,33 +118,33 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         return;
       }
 
-      // Cast the event data to Map<String, dynamic>
       final eventData = eventSnapshot.data() as Map<String, dynamic>;
 
       if (userData!.role == "Learner") {
         List<dynamic> attendees = eventData['attendees'] ?? [];
 
-        // Find the attendee with the scanned userId
         bool userIsAttendee = false;
         for (var attendee in attendees) {
           if (attendee['userId'] == scannedUserId) {
-            attendee['status'] = 'Present'; // Mark as present
+            attendee['status'] = 'Present';
             userIsAttendee = true;
             break;
           }
         }
         if (userIsAttendee) {
-          // Update the event with the modified attendees list
           await eventRef.update({'attendees': attendees});
           await userDoc.update({
             'attendedEvents': FieldValue.arrayUnion([scannedEventId]),
+          });
+          await userDoc.update({
+            'attendedEvents': FieldValue.arrayUnion(["1st Event Badge"]),
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
                 content: Text(
                     'Successfully checked in user with ID: $scannedUserId')),
           );
-          Navigator.pop(context); // Optionally close the scanner screen
+          Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -160,15 +158,15 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
         bool userIsAttendee = false;
         for (var volunteer in volunteers) {
           if (volunteer['userId'] == scannedUserId) {
-            volunteer['status'] = 'Present'; // Mark as present
+            volunteer['status'] = 'Present';
             userIsAttendee = true;
             break;
           }
         }
         if (userIsAttendee) {
-          // Update the event with the modified volunteers list
           await eventRef.update({'volunteers': volunteers});
           await userDoc.update({
+            'badges': FieldValue.arrayUnion(["1st Event Badge"]),
             'attendedEvents': FieldValue.arrayUnion([scannedEventId]),
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -176,7 +174,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 content: Text(
                     'Successfully checked in user with ID: $scannedUserId')),
           );
-          Navigator.pop(context); // Optionally close the scanner screen
+          Navigator.pop(context);
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -187,7 +185,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
     }
   }
 
-  // Add userId to the event's attendee list in Firestore
   Future<void> _rsvpToEvent(String eventId, String role) async {
     final eventDocRef =
         FirebaseFirestore.instance.collection('Events').doc(eventId);
@@ -199,10 +196,7 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               {'userId': userData!.uid, 'status': 'Applied'}
             ])
           });
-        }
-        // Remove user from attendees
-        // if (role == "Mentor") {
-        else {
+        } else {
           await eventDocRef.update({
             'volunteers': FieldValue.arrayRemove([
               {'userId': userData!.uid, 'status': 'Applied'}
@@ -215,7 +209,6 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
               content: Text('You have successfully removed your RSVP.')),
         );
       } else {
-        // Add user to attendees
         if (role == "Learner") {
           await eventDocRef.update({
             'attendees': FieldValue.arrayUnion([
@@ -229,21 +222,28 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
             ])
           });
         }
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) {
+          return CustomSplash(
+            image: "assets/images/phone.svg",
+            title: " 🎉 You're Registered for the Event!",
+            subTitle: "Thank you for joining us—exciting things are ahead!",
+            buttonName: "Next",
+            nextPath: "/home",
+          );
+        }));
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('You have successfully RSVP\'d to this event!')),
         );
       }
 
-      // Play sound and vibrate
-      await _audioCache
-          .setSource(AssetSource('success2.mp3')); // Load the sound
-      _audioCache.resume(); // Play the sound
+      await _audioCache.setSource(AssetSource('success2.mp3'));
+      _audioCache.resume();
       if (await Vibration.hasVibrator() != null) {
-        Vibration.vibrate(duration: 500); // Vibrate for 500 milliseconds
+        Vibration.vibrate(duration: 500);
       }
 
-      // Toggle the applied state
       setState(() {
         isApplied = !isApplied;
       });
@@ -260,18 +260,19 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
       appBar: AppBar(
         title: Text(widget.event['name'] ?? 'Event Detail'),
         actions: [
-          IconButton(
-            icon: const Icon(IconlyBroken.scan),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      QRScannerScreen(onCodeScanned: _onCodeScanned),
-                ),
-              );
-            },
-          ),
+          if (widget.event['organizer'] == userData!.uid)
+            IconButton(
+              icon: const Icon(IconlyBroken.scan),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        QRScannerScreen(onCodeScanned: _onCodeScanned),
+                  ),
+                );
+              },
+            ),
         ],
       ),
       body: Stack(
@@ -313,52 +314,60 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                       ],
                     ),
                   ),
-                ListTile(
-                  title: Text(userData!.uid),
-                ),
-                ListTile(
-                  title: const Text('Name'),
-                  subtitle: Text(widget.event['name'] ?? 'No name'),
-                ),
-                ListTile(
-                  title: const Text('Date'),
-                  subtitle: Text(widget.event['date'] ?? 'No date'),
-                ),
-                ListTile(
-                  title: const Text('Time'),
-                  subtitle: Text(widget.event['time'] ?? 'No time'),
-                ),
-                ListTile(
-                  title: const Text('Venue'),
-                  subtitle: Text(widget.event['venue'] ?? 'No venue'),
-                ),
-                ListTile(
-                  title: const Text('City'),
-                  subtitle: Text(widget.event['city'] ?? 'No city'),
-                ),
-                ListTile(
-                  title: const Text('Contact'),
-                  subtitle: Text(widget.event['contact'] ?? 'No contact'),
-                ),
-                ListTile(
-                  title: const Text('Organizer'),
-                  subtitle: Text(widget.event['organizer'] ?? 'No organizer'),
-                ),
-                ListTile(
-                  title: const Text('Description'),
-                  subtitle:
-                      Text(widget.event['description'] ?? 'No description'),
-                ),
-                ListTile(
-                  title: const Text('Special Instructions'),
-                  subtitle: Text(
-                      widget.event['specialInstruction'] ?? 'No instructions'),
-                ),
-                ListTile(
-                  title: const Text('Perks'),
-                  subtitle: Text(widget.event['perks'] ?? 'No perks'),
-                ),
-                const SizedBox(height: 20),
+                // ListTile(
+                //   title: Text(userData!.uid),
+                // ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CustomHeaders(context: context, Header: "Name"),
+                    Text(widget.event['name'] ?? 'No name'),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    CustomHeaders(context: context, Header: "Description"),
+                    Text(widget.event['description'] ?? 'No description'),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    CustomHeaders(context: context, Header: "Date"),
+                    Text(formatDate(widget.event['date']) ?? 'No date'),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    CustomHeaders(context: context, Header: "Time"),
+                    Text(widget.event['time'] ?? 'No time'),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    CustomHeaders(context: context, Header: "Venue"),
+                    Text(widget.event['venue'] ?? 'No venue'),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    CustomHeaders(context: context, Header: "City"),
+                    Text(widget.event['city'] ?? 'No city'),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    CustomHeaders(context: context, Header: "Contact"),
+                    Text(widget.event['contact'] ?? 'No contact'),
+                    SizedBox(
+                      height: 30,
+                    ),
+
+                    // ListTile(
+                    //   title: const Text('Special Instructions'),
+                    //   subtitle: Text(
+                    //       widget.event['specialInstruction'] ?? 'No instructions'),
+                    // ),
+                    // ListTile(
+                    //   title: const Text('Perks'),
+                    //   subtitle: Text(widget.event['perks'] ?? 'No perks'),
+                    // ),
+                    const SizedBox(height: 20),
+                  ],
+                )
               ],
             ),
           ),
@@ -370,20 +379,16 @@ class _EventDetailScreenState extends State<EventDetailScreen> {
                 userData != null
                     ? GestureDetector(
                         onTap: () {
-                          _rsvpToEvent(
-                              widget.event['UID'],
-                              userData!
-                                  .role); // Assuming UID is the event document ID
+                          _rsvpToEvent(widget.event['UID'], userData!.role);
                         },
                         child: userData!.role == "Learner"
                             ? CustomButton(
-                                name: isApplied
-                                    ? "Applied as attendee"
-                                    : "Apply as attendee",
+                                name:
+                                    isApplied ? "Applied" : "Apply as attendee",
                                 color: orange)
                             : CustomButton(
                                 name: isApplied
-                                    ? "Applied as collaborator"
+                                    ? "Applied"
                                     : "Apply as collaborator",
                                 color: isApplied ? primaryWhite : orange))
                     : const Center(

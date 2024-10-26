@@ -1,13 +1,11 @@
-import 'package:bloom/model/user.dart'; // Import your UserModel
+import 'package:bloom/model/user.dart';
 import 'package:bloom/services/services.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // For caching images
 import 'package:flutter/material.dart';
 import 'package:iconly/iconly.dart';
-import 'package:shimmer/shimmer.dart'; // For loading placeholders
 
 class OthersProfileView extends StatelessWidget {
   final UserService _userService = UserService();
-  final String userId; // The UID you want to fetch data for
+  final String userId;
 
   OthersProfileView({required this.userId});
 
@@ -27,8 +25,7 @@ class OthersProfileView extends StatelessWidget {
         }
 
         final userData = snapshot.data!;
-        UserModel userModel =
-            UserModel.fromMap(userData); // Convert the data to UserModel
+        UserModel userModel = UserModel.fromMap(userData);
 
         return Scaffold(
           appBar: AppBar(
@@ -36,55 +33,19 @@ class OthersProfileView extends StatelessWidget {
             actions: [
               IconButton(
                 icon: const Icon(IconlyBroken.notification),
-                onPressed: () {
-                  // Handle notifications
-                },
+                onPressed: () {},
               ),
             ],
           ),
-          body: RefreshIndicator(
-            onRefresh: () async {
-              // Implement refresh logic
-            },
+          body: Expanded(
             child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Profile Picture and Basic Info
                     Row(
                       children: [
-                        GestureDetector(
-                          onTap: () {
-                            // Handle profile picture tap
-                          },
-                          child: Hero(
-                            tag: "ProfilePic",
-                            child: CachedNetworkImage(
-                              imageUrl: userModel.profilePic.isEmpty
-                                  ? 'placeholder_url' // Use a placeholder
-                                  : userModel.profilePic,
-                              imageBuilder: (context, imageProvider) =>
-                                  CircleAvatar(
-                                backgroundImage: imageProvider,
-                                radius: 50,
-                              ),
-                              placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[500]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: const CircleAvatar(
-                                    radius: 50, backgroundColor: Colors.grey),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  const CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.grey,
-                                child: Icon(Icons.error, color: Colors.red),
-                              ),
-                            ),
-                          ),
-                        ),
                         const SizedBox(width: 16),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -125,7 +86,7 @@ class OthersProfileView extends StatelessWidget {
                             .copyWith(fontWeight: FontWeight.w600)),
                     Expanded(child: SizedBox()
                         // MyEventsHorizontal()
-                        ), // Include your event widget
+                        ),
                     const SizedBox(height: 20),
                     Text("My Badges",
                         style: Theme.of(context)

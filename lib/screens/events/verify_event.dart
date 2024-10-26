@@ -1,7 +1,6 @@
 import 'package:bloom/screens/events/verify_event_detail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-// import 'event_detail_screen.dart'; // Make sure to import the EventDetailScreen
 
 class VerifyEventScreen extends StatefulWidget {
   const VerifyEventScreen({super.key});

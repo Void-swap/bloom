@@ -12,10 +12,9 @@ class UserModel {
   String role;
   List<String> attendedEvents;
   List<String> badges;
-  String foundedOn; // Optional for some roles
-  List<String> listingCreated; // Optional for some roles
-  List<String> venuesCreated; // Optional for some roles
-
+  String foundedOn;
+  List<String> listingCreated;
+  List<String> venuesCreated;
   UserModel({
     required this.uid,
     required this.description,
@@ -35,7 +34,6 @@ class UserModel {
     this.venuesCreated = const [],
   });
 
-  // Convert a UserModel object to a map to store in Firestore
   Map<String, dynamic> toMap() {
     return {
       'uid': uid,
@@ -57,7 +55,6 @@ class UserModel {
     };
   }
 
-  // Convert a map to a UserModel object to fetch from Firestore
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       uid: map['uid'] ?? '',

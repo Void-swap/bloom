@@ -1,7 +1,6 @@
 import 'package:bloom/utils/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:lottie/lottie.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -22,10 +21,8 @@ class _SplashScreenState extends State<SplashScreen> {
     final user = box.read('userData');
 
     if (user != null) {
-      // Email exists in storage, navigate to Home screen
       Navigator.pushReplacementNamed(context, '/home');
     } else {
-      // Email does not exist, navigate to Sign-In screen
       Navigator.pushReplacementNamed(context, '/registerLogin');
     }
   }
@@ -37,17 +34,17 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset(
-              'assets/lottie/logo.json',
+            Image.asset(
+              'assets/bloomFlower.png',
               width: 200,
               height: 200,
               fit: BoxFit.fill,
             ),
             const SizedBox(height: 20),
             const Text(
-              'HIVE',
+              'BLOOM',
               style: TextStyle(
-                  color: orange,
+                  color: primaryBlack,
                   fontSize: 48,
                   fontWeight: FontWeight.w800,
                   letterSpacing: 3),
@@ -55,7 +52,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             const SizedBox(height: 5),
             const Text(
-              'Harnessing Inclusivity, Vision, Empowerment',
+              'Building Leaders Out of Opportunities & Mentorship',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,

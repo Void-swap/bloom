@@ -28,7 +28,7 @@ class _VerifyEventDetailState extends State<VerifyEventDetail> {
         .collection('Events')
         .doc(widget.eventId)
         .update({'status': 'live'});
-    Navigator.pop(context); // Close the detail screen
+    Navigator.pop(context);
   }
 
   Future<void> _rejectEvent() async {
@@ -36,14 +36,13 @@ class _VerifyEventDetailState extends State<VerifyEventDetail> {
         .collection('Events')
         .doc(widget.eventId)
         .update({'status': 'rejected'});
-    Navigator.pop(context); // Close the detail screen
+    Navigator.pop(context);
   }
 
   Future<void> _onCodeScanned(BarcodeCapture barcodeCapture) async {
     if (barcodeCapture.barcodes.isNotEmpty) {
       final barcode = barcodeCapture.barcodes.first;
 
-      // Split the QR code data assuming it's in the format "eventId,userId"
       final qrData = barcode.rawValue?.split(',');
       if (qrData == null || qrData.length != 2) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -51,8 +50,8 @@ class _VerifyEventDetailState extends State<VerifyEventDetail> {
         );
         return;
       }
-      final String scannedEventId = qrData[0]; // The eventId part
-      final String scannedUserId = qrData[1]; // The userId part
+      final String scannedEventId = qrData[0];
+      final String scannedUserId = qrData[1];
       print(scannedEventId);
       print(scannedEventId);
       print(scannedEventId);
@@ -65,16 +64,7 @@ class _VerifyEventDetailState extends State<VerifyEventDetail> {
       print(scannedUserId);
       print(scannedUserId);
 
-//UNIQUE SCANNER FOR EACH EVENT
-      // Check if the scanned eventId matches the current event
-      // if (scannedEventId != widget.eventId) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text('QR code does not match this event')),
-      //   );
-      //   return;
-      // }
-
-      // Get the event document using the eventId
+      // if (s
       DocumentReference eventRef =
           _firestore.collection('Events').doc(scannedEventId);
       DocumentReference userDoc =
@@ -89,23 +79,20 @@ class _VerifyEventDetailState extends State<VerifyEventDetail> {
         return;
       }
 
-      // Cast the event data to Map<String, dynamic>
       final eventData = eventSnapshot.data() as Map<String, dynamic>;
 
       List<dynamic> attendees = eventData['attendees'] ?? [];
 
-      // Find the attendee with the scanned userId
       bool userIsAttendee = false;
       for (var attendee in attendees) {
         if (attendee['userId'] == scannedUserId) {
-          attendee['status'] = 'Present'; // Mark as present
+          attendee['status'] = 'Present';
           userIsAttendee = true;
           break;
         }
       }
 
       if (userIsAttendee) {
-        // Update the event with the modified attendees list
         await eventRef.update({'attendees': attendees});
         await userDoc.update({
           'attendedEvents': FieldValue.arrayUnion([scannedEventId]),
@@ -115,7 +102,7 @@ class _VerifyEventDetailState extends State<VerifyEventDetail> {
               content:
                   Text('Successfully checked in user with ID: $scannedUserId')),
         );
-        Navigator.pop(context); // Optionally close the scanner screen
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('User not found in the attendee list')),
@@ -192,9 +179,8 @@ class QRScannerScreen extends StatefulWidget {
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
   MobileScannerController cameraController = MobileScannerController();
-  bool isBackCamera = true; // Track whether the back camera is active
-  bool isFlashOn = false; // Track whether the flash is on or off
-
+  bool isBackCamera = true;
+  bool isFlashOn = false;
   @override
   void dispose() {
     cameraController.dispose();
@@ -283,7 +269,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
           ),
           Center(
             child: Lottie.asset(
-              'assets/lottie/qrScanner.json', //animation
+              'assets/lottie/qrScanner.json',
               // width: 250,
               height: 325,
               fit: BoxFit.cover,
@@ -315,7 +301,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     );
   }
 
-  // Function to show success feedback after scanning a QR code
   void _showSuccessFeedback() {
     //   ScaffoldMessenger.of(context).showSnackBar(
     //     SnackBar(

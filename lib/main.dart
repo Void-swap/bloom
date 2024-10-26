@@ -124,9 +124,6 @@ class MyApp extends StatelessWidget {
         '/createVenue': (context) => CreateVenueScreen(),
         '/createCareer': (context) => CreateCareerScreen(),
         '/myEvents': (context) => MyEventScreen(),
-        // '/shortlistScreen': (context) => ApplicantManagementScreen(
-        //       jobId: "70FEBrztoFTqdnqe7K30",
-        //     ),
       },
     );
   }

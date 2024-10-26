@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:bloom/model/user.dart';
 import 'package:bloom/screens/events/event_detail_screen.dart';
 import 'package:bloom/utils/colors.dart';
@@ -5,6 +7,7 @@ import 'package:bloom/utils/random_colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:http/http.dart' as http;
 import 'package:iconly/iconly.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -33,15 +36,46 @@ class _EventScreenState extends State<EventScreen> {
   ValueNotifier<List<String>> selectedTags = ValueNotifier([]);
 
   List<String> allTags = [
-    "Music",
-    "Public Speaking",
-    "Presentation Skills",
-    "Youth Empowerment",
-    "Customer Service Skills",
-    "Leadership Skills",
-    "Emotional Intelligence",
-    "Critical Thinking"
+    "Technology",
+    "Finance",
+    "Healthcare",
+    "Engineering",
+    "Entertainment",
+    "Education",
+    "Environment",
+    "Social",
+    "Lifestyle",
+    "Law",
+    "Agriculture",
+    "Marketing",
+    "Arts",
+    "Design",
+    "Hospitality",
+    "Soft Skills"
   ];
+
+  Future<List<String>> getEventRecommendations(List<String> interests) async {
+    final apiKey = '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';
+    final url = 'https://api.groq.com/openai/v1/chat/completions';
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $apiKey',
+      },
+      body: json.encode({
+        'interests': interests,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      return List<String>.from(data['events']);
+    } else {
+      throw Exception('Failed to load recommendations');
+    }
+  }
 
   void _showFilterBottomSheet() {
     showModalBottomSheet(
@@ -111,8 +145,7 @@ class _EventScreenState extends State<EventScreen> {
                                   } else {
                                     selectedTagsList.add(tag);
                                   }
-                                  selectedTags
-                                      .notifyListeners(); // Notify listeners
+                                  selectedTags.notifyListeners();
                                 },
                                 child: Chip(
                                   label: Text(tag),
@@ -125,6 +158,14 @@ class _EventScreenState extends State<EventScreen> {
                             }).toList(),
                           );
                         },
+                      ),
+                      ElevatedButton(
+                        onPressed: () async {
+                          List<String> recommendations =
+                              await getEventRecommendations(selectedTags.value);
+                          // Handle recommendations (e.g., update UI)
+                        },
+                        child: const Text('Get Recommendations'),
                       ),
                     ],
                   ),
@@ -140,17 +181,12 @@ class _EventScreenState extends State<EventScreen> {
   Stream<QuerySnapshot> _getFilteredEvents() {
     var query = eventsCollection.where('status', isEqualTo: 'live');
 
-    // Only apply the filter if there are selected tags
+    // Apply the filter if there are selected tags
     if (selectedTags.value.isNotEmpty) {
       query = query.where('tags', arrayContainsAny: selectedTags.value);
     }
 
     return query.snapshots();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -177,7 +213,7 @@ class _EventScreenState extends State<EventScreen> {
             icon: const Icon(IconlyBroken.filter),
             onPressed: _showFilterBottomSheet,
           ),
-          if (userData!.role == "Admin")
+          if (userData!.role != "Mentor" || userData.role == "Learner")
             IconButton(
               tooltip: "Event Requests",
               icon: const Icon(IconlyBroken.notification),
@@ -185,13 +221,22 @@ class _EventScreenState extends State<EventScreen> {
                 Navigator.pushNamed(context, "/verifyEvent");
               },
             ),
-          IconButton(
-            tooltip: "Create Event",
-            icon: const Icon(IconlyBroken.plus),
-            onPressed: () {
-              Navigator.pushNamed(context, "/createEvent");
-            },
-          ),
+          if (userData!.role != "Learner" && userData.role != "Mentor")
+            IconButton(
+                icon: const Icon(
+                  IconlyBroken.location,
+                ),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/createVenue');
+                }),
+          if (userData!.role == "Mentor")
+            IconButton(
+              tooltip: "Create Event",
+              icon: const Icon(IconlyBroken.plus),
+              onPressed: () {
+                Navigator.pushNamed(context, "/createEvent");
+              },
+            ),
         ],
       ),
       body: ValueListenableBuilder<List<String>>(
